@@ -23,20 +23,38 @@
   <div id="status"></div>
   <div id="chat-root">Chat widget will appear after verification.</div>
 
-  <!-- Replace this with your Salesforce embed script URL/snippet from your Embedded Service Deployment.
-       You will copy the snippet from Salesforce Setup -> Embedded Service Deployments -> Code Snippet. -->
-  <script src="https://your-instance.salesforce.com/embeddedservice/5.0/esw.min.js"></script>
+  <!-- 🔹 Salesforce Embedded Messaging Snippet -->
+  <script type='text/javascript'>
+    function initEmbeddedMessaging() {
+      try {
+        embeddedservice_bootstrap.settings.language = 'en_US'; // Example: 'en' or 'en-US'
 
+        embeddedservice_bootstrap.init(
+          '00DKa00000LmGlJ', // Replace with your Salesforce Org ID
+          'Messaging_In_App_for_Extenal_Website', // Embedded Service Deployment name
+          'https://at1758534664298.my.site.com/ESWMessagingInAppforE1759416271397', // Salesforce Deployment URL
+          {
+            scrt2URL: 'https://at1758534664298.my.salesforce-scrt.com'
+          }
+        );
+      } catch (err) {
+        console.error('Error loading Embedded Messaging: ', err);
+      }
+    };
+  </script>
+  <script type='text/javascript' src='https://at1758534664298.my.site.com/ESWMessagingInAppforE1759416271397/assets/js/bootstrap.min.js' onload='initEmbeddedMessaging()'></script>
+
+  <!-- 🔹 Custom Auth + Login Logic -->
   <script>
-  // CONFIG: set to your backend URL (where server.js will run)
-const AUTH_BACKEND = "https://agentforce-auth.onrender.com";
+  // CONFIG: set to your backend URL (where server.js is running on Render)
+  const AUTH_BACKEND = "https://agentforce-auth.onrender.com";
 
   const statusEl = document.getElementById('status');
   const btnLogin = document.getElementById('btnLogin');
 
-  // Wait for the embedded messaging client to be ready, per Salesforce docs.
+  // Salesforce Embedded Messaging fires this event when it’s ready.
   window.addEventListener('onEmbeddedMessagingReady', () => {
-    console.log('Embedded messaging ready');
+    console.log('✅ Embedded messaging ready');
   });
 
   btnLogin.onclick = async () => {
@@ -45,43 +63,3 @@ const AUTH_BACKEND = "https://agentforce-auth.onrender.com";
 
     statusEl.innerText = "Logging in...";
     try {
-      // call backend to authenticate and get a signed identity JWT that includes the sessionId
-      const res = await fetch(AUTH_BACKEND + "/api/login", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ email, password })
-      });
-      const body = await res.json();
-      if (!res.ok) throw new Error(body.message || "login failed");
-
-      const { identityJwt, sessionId, agent } = body;
-      statusEl.innerText = `Logged in (session ${sessionId}). Sending identity token to Salesforce...`;
-
-      // Use Salesforce's userVerification API to set the identity token.
-      // According to the docs, call this after onEmbeddedMessagingReady (event above).
-      // This will let Salesforce create an authorized messaging session for this user.
-      if (window.embeddedservice_bootstrap && window.embeddedservice_bootstrap.userVerificationAPI) {
-        window.embeddedservice_bootstrap.userVerificationAPI.setIdentityToken({
-          identityTokenType: "JWT",
-          identityToken: identityJwt
-        });
-        statusEl.innerText = `Identity token set — chat button should render (verified user). Session: ${sessionId}`;
-      } else {
-        statusEl.innerText = "Embedded service API not available yet. Wait a second and retry.";
-        console.warn('embeddedservice_bootstrap.userVerificationAPI not found');
-      }
-
-      // Optionally: store sessionId locally for your UI logic
-      localStorage.setItem('demo_sessionId', sessionId);
-      localStorage.setItem('demo_agent', JSON.stringify(agent || {}));
-
-    } catch (err) {
-      console.error(err);
-      statusEl.innerText = "Error: " + err.message;
-    }
-  };
-  </script>
-</body>
-</html>
-
-
