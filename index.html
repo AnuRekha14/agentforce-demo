@@ -1,101 +1,37 @@
-<!-- index.html -->
-<!doctype html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <title>Agentforce Demo — Auth + SessionId</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <style>
-    body { font-family: system-ui, Arial; padding: 1.5rem; }
-    #chat-root { height: 400px; border: 1px solid #ddd; margin-top: 1rem; padding: 0.5rem; }
-    label, input { display:block; margin: .5rem 0; }
-    pre { background:#f7f7f7; padding:0.5rem; border:1px solid #ddd; overflow-x:auto; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agentforce Demo</title>
 </head>
 <body>
-  <h1>Agentforce Demo</h1>
-
-  <div id="login">
-    <label>Email <input id="email" value="demo@example.com"></label>
-    <label>Password <input id="password" type="password" value="demo"></label>
-    <button id="btnLogin">Login & Start Chat</button>
-  </div>
-
-  <div id="status"></div>
-  <pre id="debug"></pre>
-  <div id="chat-root">Chat widget will appear after verification.</div>
-
-  <!-- 🔹 Salesforce Embedded Messaging Snippet -->
-  <script type='text/javascript'>
+<h1>Agentforce Demo</h1>
+ 
+  <!-- Embedded Messaging Snippet -->
+<script type='text/javascript'>
     function initEmbeddedMessaging() {
       try {
-        embeddedservice_bootstrap.settings.language = 'en_US'; // Example: 'en' or 'en-US'
-
+        embeddedservice_bootstrap.settings.language = 'en_US'; // Language
+ 
         embeddedservice_bootstrap.init(
-          '00DKa00000LmGlJ', // Your Org ID
-          'Messaging_In_App_for_Extenal_Website', // Deployment name
-          'https://at1758534664298.my.site.com/ESWMessagingInAppforE1759416271397', // Deployment URL
+          '00DgK000008l5fZ',  // Org ID
+          'Messaging_Channel_for_External_Website', // Deployment name
+          'https://orgfarm-de8616b37d-dev-ed.develop.my.site.com/ESWMessagingChannelfor1759308457540',
           {
-            scrt2URL: 'https://at1758534664298.my.salesforce-scrt.com'
+            scrt2URL: 'https://orgfarm-de8616b37d-dev-ed.develop.my.salesforce-scrt.com'
           }
         );
       } catch (err) {
         console.error('Error loading Embedded Messaging: ', err);
       }
     };
-  </script>
-  <script type='text/javascript' src='https://at1758534664298.my.site.com/ESWMessagingInAppforE1759416271397/assets/js/bootstrap.min.js' onload='initEmbeddedMessaging()'></script>
-
-  <!-- 🔹 Custom Auth + Login Logic -->
-  <script>
-  const AUTH_BACKEND = "https://agentforce-auth.onrender.com"; // 👈 replace with your backend URL
-
-  const statusEl = document.getElementById('status');
-  const debugEl = document.getElementById('debug');
-  const btnLogin = document.getElementById('btnLogin');
-
-  function logDebug(message, obj) {
-    console.log(message, obj || '');
-    debugEl.textContent += message + (obj ? " " + JSON.stringify(obj, null, 2) : "") + "\n\n";
-  }
-
-  window.addEventListener('onEmbeddedMessagingReady', () => {
-    logDebug("✅ Embedded messaging ready");
-  });
-
-  btnLogin.onclick = async () => {
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
-
-    statusEl.innerText = "Logging in...";
-    debugEl.textContent = ""; // clear old logs
-
-    try {
-      logDebug("🔄 Calling backend:", { url: AUTH_BACKEND + "/api/login", email });
-
-      const res = await fetch(AUTH_BACKEND + "/api/login", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ email, password })
-      });
-      const body = await res.json();
-
-      if (!res.ok) throw new Error(body.message || "login failed");
-
-      const { identityJwt, sessionId, agent } = body;
-
-      logDebug("✅ Backend response:", body);
-      statusEl.innerText = `Logged in (session ${sessionId}). Sending identity token to Salesforce...`;
-
-      if (window.embeddedservice_bootstrap && window.embeddedservice_bootstrap.userVerificationAPI) {
-        logDebug("➡️ Sending identityJwt to Salesforce:", { jwt: identityJwt.substring(0,80) + "..." });
-
-        window.embeddedservice_bootstrap.userVerificationAPI.setIdentityToken({
-          identityTokenType: "JWT",
-          identityToken: identityJwt
-        });
-
-        statusEl.innerText = `🎉 Identity token set — chat is ready (Session: ${sessionId})`;
-      } else {
-        statusEl.innerText = "⚠️ Embedded Messaging not ready yet. Try again in a few seconds.";
-        logDebug("⚠️ embeddedservice_bootstrap.userVerification
+</script>
+<script type='text/javascript' 
+          src='https://orgfarm-de8616b37d-dev-ed.develop.my.site.com/ESWMessagingChannelfor1759308457540/assets/js… 
+          onload='initEmbeddedMessaging()'></script>
+ 
+  <!-- Optional: message explaining -->
+<p>Click the button to start a chat with Agentforce.</p>
+ 
+</body>
+</html>
