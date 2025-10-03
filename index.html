@@ -9,6 +9,7 @@
     body { font-family: system-ui, Arial; padding: 1.5rem; }
     #chat-root { height: 400px; border: 1px solid #ddd; margin-top: 1rem; padding: 0.5rem; }
     label, input { display:block; margin: .5rem 0; }
+    pre { background:#f7f7f7; padding:0.5rem; border:1px solid #ddd; overflow-x:auto; }
   </style>
 </head>
 <body>
@@ -21,6 +22,7 @@
   </div>
 
   <div id="status"></div>
+  <pre id="debug"></pre>
   <div id="chat-root">Chat widget will appear after verification.</div>
 
   <!-- 🔹 Salesforce Embedded Messaging Snippet -->
@@ -30,9 +32,9 @@
         embeddedservice_bootstrap.settings.language = 'en_US'; // Example: 'en' or 'en-US'
 
         embeddedservice_bootstrap.init(
-          '00DKa00000LmGlJ', // Replace with your Salesforce Org ID
-          'Messaging_In_App_for_Extenal_Website', // Embedded Service Deployment name
-          'https://at1758534664298.my.site.com/ESWMessagingInAppforE1759416271397', // Salesforce Deployment URL
+          '00DKa00000LmGlJ', // Your Org ID
+          'Messaging_In_App_for_Extenal_Website', // Deployment name
+          'https://at1758534664298.my.site.com/ESWMessagingInAppforE1759416271397', // Deployment URL
           {
             scrt2URL: 'https://at1758534664298.my.salesforce-scrt.com'
           }
@@ -46,15 +48,19 @@
 
   <!-- 🔹 Custom Auth + Login Logic -->
   <script>
-  // CONFIG: set to your backend URL (where server.js is running on Render)
-  const AUTH_BACKEND = "https://agentforce-auth.onrender.com";
+  const AUTH_BACKEND = "https://agentforce-auth.onrender.com"; // 👈 replace with your backend URL
 
   const statusEl = document.getElementById('status');
+  const debugEl = document.getElementById('debug');
   const btnLogin = document.getElementById('btnLogin');
 
-  // Salesforce Embedded Messaging fires this event when it’s ready.
+  function logDebug(message, obj) {
+    console.log(message, obj || '');
+    debugEl.textContent += message + (obj ? " " + JSON.stringify(obj, null, 2) : "") + "\n\n";
+  }
+
   window.addEventListener('onEmbeddedMessagingReady', () => {
-    console.log('✅ Embedded messaging ready');
+    logDebug("✅ Embedded messaging ready");
   });
 
   btnLogin.onclick = async () => {
@@ -62,4 +68,34 @@
     const password = document.getElementById('password').value;
 
     statusEl.innerText = "Logging in...";
+    debugEl.textContent = ""; // clear old logs
+
     try {
+      logDebug("🔄 Calling backend:", { url: AUTH_BACKEND + "/api/login", email });
+
+      const res = await fetch(AUTH_BACKEND + "/api/login", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ email, password })
+      });
+      const body = await res.json();
+
+      if (!res.ok) throw new Error(body.message || "login failed");
+
+      const { identityJwt, sessionId, agent } = body;
+
+      logDebug("✅ Backend response:", body);
+      statusEl.innerText = `Logged in (session ${sessionId}). Sending identity token to Salesforce...`;
+
+      if (window.embeddedservice_bootstrap && window.embeddedservice_bootstrap.userVerificationAPI) {
+        logDebug("➡️ Sending identityJwt to Salesforce:", { jwt: identityJwt.substring(0,80) + "..." });
+
+        window.embeddedservice_bootstrap.userVerificationAPI.setIdentityToken({
+          identityTokenType: "JWT",
+          identityToken: identityJwt
+        });
+
+        statusEl.innerText = `🎉 Identity token set — chat is ready (Session: ${sessionId})`;
+      } else {
+        statusEl.innerText = "⚠️ Embedded Messaging not ready yet. Try again in a few seconds.";
+        logDebug("⚠️ embeddedservice_bootstrap.userVerification
