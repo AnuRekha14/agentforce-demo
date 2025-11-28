@@ -1,31 +1,29 @@
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Agentforce Demo</title>
+    <!-- Load Lightning Out -->
+    <script src="https://orgfarm-de8616b37d-dev-ed.develop.my.salesforce.com/lightning/lightning.out.js"></script>
+    <script>
+        // Initialize Lightning Out
+        $Lightning.use(
+            "c:externalApp", // Lightning Out App
+            function() {
+
+                // Create the Aura wrapper component dynamically
+                $Lightning.createComponent(
+                    "c:agentChatWrapper", // Aura wrapper of your LWC
+                    {},                   // Attributes (empty)
+                    "lightningContainer", // Div id on your page
+                    function(cmp) {
+                        console.log("Agent Chat loaded!");
+                    }
+                );
+
+            },
+            "https://orgfarm-de8616b37d-dev-ed.develop.my.salesforce.com" // Salesforce org base URL
+        );
+    </script>
 </head>
 <body>
-<h1>Agentforce Demo</h1>
- 
-  <!-- Embedded Messaging Snippet -->
-<script type='text/javascript'>
-    function initEmbeddedMessaging() {
-      try {
-        embeddedservice_bootstrap.settings.language = 'en_US'; // Language
- 
-        embeddedservice_bootstrap.init(
-          '00DgK000008l5fZ',  // Org ID
-          'Messaging_Channel_for_External_Website', // Deployment name
-          'https://orgfarm-de8616b37d-dev-ed.develop.my.site.com/ESWMessagingChannelfor1759308457540',
-          {
-            scrt2URL: 'https://orgfarm-de8616b37d-dev-ed.develop.my.salesforce-scrt.com'
-          }
-        );
-      } catch (err) {
-        console.error('Error loading Embedded Messaging: ', err);
-      }
-    };
-</script>
-<script type='text/javascript' 
-          src='https://orgfarm-de8616b37d-dev-ed.develop.my.site.com/ESWMessagingChannelfor1759308457540/assets/js… 
-          onload='initEmbeddedMessaging()'></script>
+    <div id="lightningContainer"></div>
+</body>
+</html>
