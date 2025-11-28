@@ -1,28 +1,31 @@
+<!DOCTYPE html>
 <html>
 <head>
-    <!-- Load Lightning Out from your Experience Cloud site -->
-    <script src="https://orgfarm-de8616b37d-dev-ed.develop.my.site.com/lightning/lightning.out.js"></script>
-    <script>
-        // Initialize Lightning Out using your Experience Cloud domain
-        $Lightning.use(
-            "c:externalApp", // Lightning Out App (must exist in your org)
-            function() {
-                // Create the Aura wrapper component dynamically
-                $Lightning.createComponent(
-                    "c:agentChatWrapper", // Aura wrapper containing your LWC
-                    {},                   // Attributes (empty)
-                    "lightningContainer", // Div id where component will render
-                    function(cmp) {
-                        console.log("Agent Chat loaded!");
-                    }
-                );
-            },
-            "https://orgfarm-de8616b37d-dev-ed.develop.my.site.com" // Base URL of your site
-        );
-    </script>
+    <title>Agent Chat Embed</title>
+    <style>
+        /* Optional: make iframe responsive or style the container */
+        .chat-container {
+            width: 400px;
+            height: 600px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+    </style>
 </head>
 <body>
-    <!-- Container where Agent Chat will appear -->
-    <div id="lightningContainer"></div>
+    <h2>Agent Chat Widget</h2>
+
+    <div class="chat-container">
+        <iframe 
+            src="https://orgfarm-de8616b37d-dev-ed.develop.my.site.com/agentforce/s/agent-chat-page" 
+            title="Agent Chat">
+        </iframe>
+    </div>
 </body>
 </html>
