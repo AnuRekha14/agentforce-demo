@@ -1,29 +1,28 @@
 <html>
 <head>
-    <!-- Load Lightning Out -->
-    <script src="https://orgfarm-de8616b37d-dev-ed.develop.my.salesforce.com/lightning/lightning.out.js"></script>
+    <!-- Load Lightning Out from your Experience Cloud site -->
+    <script src="https://orgfarm-de8616b37d-dev-ed.develop.my.site.com/lightning/lightning.out.js"></script>
     <script>
-        // Initialize Lightning Out
+        // Initialize Lightning Out using your Experience Cloud domain
         $Lightning.use(
-            "c:externalApp", // Lightning Out App
+            "c:externalApp", // Lightning Out App (must exist in your org)
             function() {
-
                 // Create the Aura wrapper component dynamically
                 $Lightning.createComponent(
-                    "c:agentChatWrapper", // Aura wrapper of your LWC
+                    "c:agentChatWrapper", // Aura wrapper containing your LWC
                     {},                   // Attributes (empty)
-                    "lightningContainer", // Div id on your page
+                    "lightningContainer", // Div id where component will render
                     function(cmp) {
                         console.log("Agent Chat loaded!");
                     }
                 );
-
             },
-            "https://orgfarm-de8616b37d-dev-ed.develop.my.salesforce.com" // Salesforce org base URL
+            "https://orgfarm-de8616b37d-dev-ed.develop.my.site.com" // Base URL of your site
         );
     </script>
 </head>
 <body>
+    <!-- Container where Agent Chat will appear -->
     <div id="lightningContainer"></div>
 </body>
 </html>
